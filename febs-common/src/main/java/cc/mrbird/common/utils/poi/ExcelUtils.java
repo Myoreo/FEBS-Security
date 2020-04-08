@@ -6,13 +6,13 @@ import cc.mrbird.common.utils.poi.pojo.ExportItem;
 import com.csvreader.CsvWriter;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.xssf.streaming.SXSSFCell;
-import org.apache.poi.xssf.streaming.SXSSFRow;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+//import org.apache.poi.hssf.util.HSSFColor;
+//import org.apache.poi.ss.usermodel.CellStyle;
+//import org.apache.poi.ss.usermodel.Font;
+//import org.apache.poi.xssf.streaming.SXSSFCell;
+//import org.apache.poi.xssf.streaming.SXSSFRow;
+//import org.apache.poi.xssf.streaming.SXSSFSheet;
+//import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,134 +110,135 @@ public class ExcelUtils {
      */
     public boolean toExcel(List<?> data, String sheetName, OutputStream out) {
 
-        return toExcel(data, sheetName, new ExportHandler() {
-
-            @Override
-            public CellStyle headCellStyle(SXSSFWorkbook wb) {
-                CellStyle cellStyle = wb.createCellStyle();
-                Font font = wb.createFont();
-                cellStyle.setFillForegroundColor((short) 12);
-                cellStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);// 填充模式
-                cellStyle.setBorderTop(CellStyle.BORDER_THIN);// 上边框为细边框
-                cellStyle.setBorderRight(CellStyle.BORDER_THIN);// 右边框为细边框
-                cellStyle.setBorderBottom(CellStyle.BORDER_THIN);// 下边框为细边框
-                cellStyle.setBorderLeft(CellStyle.BORDER_THIN);// 左边框为细边框
-                cellStyle.setAlignment(CellStyle.ALIGN_LEFT);// 对齐
-                cellStyle.setFillForegroundColor(HSSFColor.GREEN.index);
-                cellStyle.setFillBackgroundColor(HSSFColor.GREEN.index);
-                font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-                // font.setFontHeightInPoints((short) 12);// 字体大小
-                font.setColor(HSSFColor.WHITE.index);
-                // 应用标题字体到标题样式
-                cellStyle.setFont(font);
-                return cellStyle;
-            }
-
-            @Override
-            public String exportFileName(String sheetName) {
-                return String.format("导出-%s-%s", sheetName, System.currentTimeMillis());
-            }
-        }, out);
+//        return toExcel(data, sheetName, new ExportHandler() {
+//
+//            @Override
+//            public CellStyle headCellStyle(SXSSFWorkbook wb) {
+//                CellStyle cellStyle = wb.createCellStyle();
+//                Font font = wb.createFont();
+//                cellStyle.setFillForegroundColor((short) 12);
+//                cellStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);// 填充模式
+//                cellStyle.setBorderTop(CellStyle.BORDER_THIN);// 上边框为细边框
+//                cellStyle.setBorderRight(CellStyle.BORDER_THIN);// 右边框为细边框
+//                cellStyle.setBorderBottom(CellStyle.BORDER_THIN);// 下边框为细边框
+//                cellStyle.setBorderLeft(CellStyle.BORDER_THIN);// 左边框为细边框
+//                cellStyle.setAlignment(CellStyle.ALIGN_LEFT);// 对齐
+//                cellStyle.setFillForegroundColor(HSSFColor.GREEN.index);
+//                cellStyle.setFillBackgroundColor(HSSFColor.GREEN.index);
+//                font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
+//                // font.setFontHeightInPoints((short) 12);// 字体大小
+//                font.setColor(HSSFColor.WHITE.index);
+//                // 应用标题字体到标题样式
+//                cellStyle.setFont(font);
+//                return cellStyle;
+//            }
+//
+//            @Override
+//            public String exportFileName(String sheetName) {
+//                return String.format("导出-%s-%s", sheetName, System.currentTimeMillis());
+//            }
+//        }, out);
+    	return true;
     }
 
     public boolean toExcel(List<?> data, String sheetName, ExportHandler handler, OutputStream out) {
-        requiredbuilderParams();
-        if (data == null || data.isEmpty()) {
-            return false;
-        }
-        // 导出列查询。
-        ExportConfig currentExportConfig;
-        ExportItem currentExportItem;
-        List<ExportItem> exportItems = new ArrayList<>();
-        for (Field field : mClass.getDeclaredFields()) {
-
-            currentExportConfig = field.getAnnotation(ExportConfig.class);
-            if (currentExportConfig != null) {
-                currentExportItem = new ExportItem().setField(field.getName())
-                        .setDisplay("field".equals(currentExportConfig.value()) ? field.getName()
-                                : currentExportConfig.value())
-                        .setWidth(currentExportConfig.width()).setConvert(currentExportConfig.convert())
-                        .setColor(currentExportConfig.color()).setReplace(currentExportConfig.replace());
-                exportItems.add(currentExportItem);
-            }
-
-        }
-
-        // 创建新的工作薄。
-        SXSSFWorkbook wb = POIUtils.newSXSSFWorkbook();
-
-        double sheetNo = Math.ceil((double) data.size() / mMaxSheetRecords);// 取出一共有多少个sheet.
-
-        // =====多sheet生成填充数据=====
-        int index = 0;
-        while (index <= (sheetNo == 0.0 ? sheetNo : sheetNo - 1)) {
-            SXSSFSheet sheet = POIUtils.newSXSSFSheet(wb, sheetName + (index == 0 ? "" : "_" + index));
-
-            // 创建表头
-            SXSSFRow headerRow = POIUtils.newSXSSFRow(sheet, 0);
-            for (int i = 0; i < exportItems.size(); i++) {
-                SXSSFCell cell = POIUtils.newSXSSFCell(headerRow, i);
-                POIUtils.setColumnWidth(sheet, i, exportItems.get(i).getWidth(), exportItems.get(i).getDisplay());
-                cell.setCellValue(exportItems.get(i).getDisplay());
-
-                CellStyle style = handler.headCellStyle(wb);
-                if (style != null) {
-                    cell.setCellStyle(style);
-                }
-            }
-
-            SXSSFRow bodyRow;
-            String cellValue;
-            SXSSFCell cell;
-            CellStyle style = wb.createCellStyle();
-            Font font = wb.createFont();
-            style.setFont(font);
-
-            // 产生数据行
-            if (!data.isEmpty()) {
-                int startNo = index * mMaxSheetRecords;
-                int endNo = Math.min(startNo + mMaxSheetRecords, data.size());
-
-                int i = startNo;
-                while (i < endNo) {
-                    bodyRow = POIUtils.newSXSSFRow(sheet, i + 1 - startNo);
-                    for (int j = 0; j < exportItems.size(); j++) {
-                        // 处理单元格值
-                        cellValue = exportItems.get(j).getReplace();
-                        if ("".equals(cellValue)) {
-                            try {
-                                cellValue = BeanUtils.getProperty(data.get(i), exportItems.get(j).getField());
-                            } catch (Exception e) {
-                                log.error(e.getMessage());
-                            }
-                        }
-
-                        // 格式化单元格值
-                        if (!"".equals(exportItems.get(j).getConvert())) {
-                            cellValue = convertCellValue(cellValue, exportItems.get(j).getConvert());
-                        }
-
-                        // 单元格宽度
-                        POIUtils.setColumnWidth(sheet, j, exportItems.get(j).getWidth(), cellValue);
-
-                        cell = POIUtils.newSXSSFCell(bodyRow, j);
-                        // fix: 当值为“”时,当前index的cell会失效
-                        cell.setCellValue("".equals(cellValue) ? null : cellValue);
-                        cell.setCellStyle(style);
-                    }
-                    i++;
-                }
-            }
-            index++;
-        }
-
-        try {
-            // 生成Excel文件并下载.(通过response对象是否为空来判定是使用浏览器下载还是直接写入到output中)
-            POIUtils.writeByLocalOrBrowser(mResponse, handler.exportFileName(sheetName), wb, out);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return false;
-        }
+//        requiredbuilderParams();
+//        if (data == null || data.isEmpty()) {
+//            return false;
+//        }
+//        // 导出列查询。
+//        ExportConfig currentExportConfig;
+//        ExportItem currentExportItem;
+//        List<ExportItem> exportItems = new ArrayList<>();
+//        for (Field field : mClass.getDeclaredFields()) {
+//
+//            currentExportConfig = field.getAnnotation(ExportConfig.class);
+//            if (currentExportConfig != null) {
+//                currentExportItem = new ExportItem().setField(field.getName())
+//                        .setDisplay("field".equals(currentExportConfig.value()) ? field.getName()
+//                                : currentExportConfig.value())
+//                        .setWidth(currentExportConfig.width()).setConvert(currentExportConfig.convert())
+//                        .setColor(currentExportConfig.color()).setReplace(currentExportConfig.replace());
+//                exportItems.add(currentExportItem);
+//            }
+//
+//        }
+//
+//        // 创建新的工作薄。
+//        SXSSFWorkbook wb = POIUtils.newSXSSFWorkbook();
+//
+//        double sheetNo = Math.ceil((double) data.size() / mMaxSheetRecords);// 取出一共有多少个sheet.
+//
+//        // =====多sheet生成填充数据=====
+//        int index = 0;
+//        while (index <= (sheetNo == 0.0 ? sheetNo : sheetNo - 1)) {
+//            SXSSFSheet sheet = POIUtils.newSXSSFSheet(wb, sheetName + (index == 0 ? "" : "_" + index));
+//
+//            // 创建表头
+//            SXSSFRow headerRow = POIUtils.newSXSSFRow(sheet, 0);
+//            for (int i = 0; i < exportItems.size(); i++) {
+//                SXSSFCell cell = POIUtils.newSXSSFCell(headerRow, i);
+//                POIUtils.setColumnWidth(sheet, i, exportItems.get(i).getWidth(), exportItems.get(i).getDisplay());
+//                cell.setCellValue(exportItems.get(i).getDisplay());
+//
+//                CellStyle style = handler.headCellStyle(wb);
+//                if (style != null) {
+//                    cell.setCellStyle(style);
+//                }
+//            }
+//
+//            SXSSFRow bodyRow;
+//            String cellValue;
+//            SXSSFCell cell;
+//            CellStyle style = wb.createCellStyle();
+//            Font font = wb.createFont();
+//            style.setFont(font);
+//
+//            // 产生数据行
+//            if (!data.isEmpty()) {
+//                int startNo = index * mMaxSheetRecords;
+//                int endNo = Math.min(startNo + mMaxSheetRecords, data.size());
+//
+//                int i = startNo;
+//                while (i < endNo) {
+//                    bodyRow = POIUtils.newSXSSFRow(sheet, i + 1 - startNo);
+//                    for (int j = 0; j < exportItems.size(); j++) {
+//                        // 处理单元格值
+//                        cellValue = exportItems.get(j).getReplace();
+//                        if ("".equals(cellValue)) {
+//                            try {
+//                                cellValue = BeanUtils.getProperty(data.get(i), exportItems.get(j).getField());
+//                            } catch (Exception e) {
+//                                log.error(e.getMessage());
+//                            }
+//                        }
+//
+//                        // 格式化单元格值
+//                        if (!"".equals(exportItems.get(j).getConvert())) {
+//                            cellValue = convertCellValue(cellValue, exportItems.get(j).getConvert());
+//                        }
+//
+//                        // 单元格宽度
+//                        POIUtils.setColumnWidth(sheet, j, exportItems.get(j).getWidth(), cellValue);
+//
+//                        cell = POIUtils.newSXSSFCell(bodyRow, j);
+//                        // fix: 当值为“”时,当前index的cell会失效
+//                        cell.setCellValue("".equals(cellValue) ? null : cellValue);
+//                        cell.setCellStyle(style);
+//                    }
+//                    i++;
+//                }
+//            }
+//            index++;
+//        }
+//
+//        try {
+//            // 生成Excel文件并下载.(通过response对象是否为空来判定是使用浏览器下载还是直接写入到output中)
+//            POIUtils.writeByLocalOrBrowser(mResponse, handler.exportFileName(sheetName), wb, out);
+//        } catch (Exception e) {
+//            log.error(e.getMessage());
+//            return false;
+//        }
 
         return true;
     }

@@ -17,6 +17,8 @@ import cc.mrbird.security.session.FebsExpiredSessionStrategy;
 import cc.mrbird.security.session.FebsInvalidSessionStrategy;
 import cc.mrbird.security.xss.XssFilter;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -38,6 +40,8 @@ import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.social.security.SpringSocialConfigurer;
 
 import javax.sql.DataSource;
+
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,6 +51,8 @@ import java.util.Map;
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class FebsSecurityConfig extends WebSecurityConfigurerAdapter {
+	
+	private static final Logger looger = LoggerFactory.getLogger(FebsSecurityConfig.class);
 
     @Autowired
     private FebsAuthenticationSucessHandler febsAuthenticationSucessHandler;
@@ -88,7 +94,7 @@ public class FebsSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         String[] anonResourcesUrl = StringUtils.splitByWholeSeparatorPreserveAllTokens(febsSecurityProperties.getAnonResourcesUrl(),",");
-
+		looger.info(">>>>>>>>>anonResourcesUrl:{}", Arrays.asList(anonResourcesUrl));
         ImageCodeFilter imageCodeFilter = new ImageCodeFilter();
         imageCodeFilter.setAuthenticationFailureHandler(febsAuthenticationFailureHandler);
         imageCodeFilter.setSecurityProperties(febsSecurityProperties);

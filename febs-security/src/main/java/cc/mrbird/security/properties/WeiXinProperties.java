@@ -1,6 +1,6 @@
 package cc.mrbird.security.properties;
 
-import org.springframework.social.autoconfigure.SocialProperties;
+import cc.mrbird.security.social.SocialProperties;
 
 public class WeiXinProperties extends SocialProperties {
 

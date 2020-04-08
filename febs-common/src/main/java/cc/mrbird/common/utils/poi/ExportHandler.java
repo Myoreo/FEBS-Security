@@ -1,7 +1,7 @@
 package cc.mrbird.common.utils.poi;
 
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+//import org.apache.poi.ss.usermodel.CellStyle;
+//import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
 /**
  * 导出Excel设置接口。
@@ -14,7 +14,7 @@ public interface ExportHandler {
 	 *            当前Wordbook对象
 	 * @return 处理后的样式
 	 */
-	CellStyle headCellStyle(SXSSFWorkbook wb);
+//	CellStyle headCellStyle(SXSSFWorkbook wb);
 
 	/**
 	 * 设置导出的文件名（无需处理后缀）

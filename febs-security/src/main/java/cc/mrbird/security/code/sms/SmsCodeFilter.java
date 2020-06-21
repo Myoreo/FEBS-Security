@@ -105,8 +105,4 @@ public class SmsCodeFilter extends OncePerRequestFilter implements InitializingB
         this.sessionRegistry = sessionRegistry;
     }
     
-    public static void main(String[] args) {
-    	AntPathMatcher pathMatcher = new AntPathMatcher();
-    	System.out.println(pathMatcher.match("test/*", "test/123"));
-	}
 }
